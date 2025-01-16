@@ -1,3 +1,11 @@
+use bevy::prelude::*;
+mod people_plugin; 
+
 fn main() {
-    println!("Hello, world!");
+    App::new()
+        .add_plugins(people_plugin::PeoplePlugin)
+    .run();
+      
 }
+
+
