@@ -19,11 +19,22 @@ pub struct Enemy {
 #[derive(Component)]
 pub struct Star {}
 
+#[derive(Resource)]
+pub struct Score {
+    pub value: u32
+}
+
+impl Default for Score {
+    fn default() -> Self {
+        Score {value : 0}
+    }
+}
 
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        .init_resource<Score>()
         .add_systems(Startup, spawn_camera)
         .add_systems(Startup, spawn_enemies)
         .add_systems(Startup, spawn_player)
@@ -167,7 +178,7 @@ pub fn enemy_hit_player(mut commands: Commands, mut player_query: Query<(Entity,
         for enemy_transform in enemy_query.iter() {
             let distance = player_transform.translation.distance(enemy_transform.translation);
             if distance <impact_distance {
-                commands.entity(player_entity).despawn();
+                // commands.entity(player_entity).despawn();
                 println!("Enemy hit player ! Game Over !")
             }
         }
@@ -175,7 +186,14 @@ pub fn enemy_hit_player(mut commands: Commands, mut player_query: Query<(Entity,
 
 }
 
-pub fn player_catch_star (mut commands: Commands, mut player_query: Query<(Entity, &Transform), With<Player>>, star_query: Query<(Entity, &Transform), With<Star>>,asset_server: Res<AssetServer>) {
+pub fn player_catch_star (mut commands: Commands, 
+    mut player_query: Query<(Entity, &Transform), 
+    With<Player>>, 
+    star_query: Query<(Entity, &Transform), 
+    With<Star>>,
+    asset_server: Res<AssetServer>,
+    mut score : ResMut<Score>
+) {
     let impact_distance = (STAR_SIZE+PLAYER_SIZE)/2.;
     //add the audio later 
     if let Ok(( _, player_transform)) = player_query.get_single_mut() {
@@ -183,7 +201,8 @@ pub fn player_catch_star (mut commands: Commands, mut player_query: Query<(Entit
             let distance = player_transform.translation.distance(star_transform.translation);
             if distance <impact_distance {
                 commands.entity(star_entity).despawn();
-                println!("You caught a star !")
+                score.value += 1;
+                println!("You caught {} star !", score.value);
             }
         }
     }
