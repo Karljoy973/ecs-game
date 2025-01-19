@@ -34,7 +34,7 @@ impl Default for Score {
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
-        .init_resource<Score>()
+        // .init_resource<Score>()
         .add_systems(Startup, spawn_camera)
         .add_systems(Startup, spawn_enemies)
         .add_systems(Startup, spawn_player)
