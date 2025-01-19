@@ -49,6 +49,10 @@ impl Default for EnemySpawnTimer {
     }
 }
 
+#[derive(Event)]
+pub struct GameOver {
+    pub score : u32
+}
 
 fn main() {
     App::new()
@@ -56,6 +60,7 @@ fn main() {
         .init_resource::<Score>()
         .init_resource::<StarSpawnTimer>()
         .init_resource::<EnemySpawnTimer>()
+        .add_event::<GameOver>()
         .add_systems(Startup, spawn_camera)
         .add_systems(Startup, spawn_enemies)
         .add_systems(Startup, spawn_player)
@@ -71,6 +76,7 @@ fn main() {
         .add_systems(Update, tick_enemies_spawn_timer)
         .add_systems(Update, spawn_stars_over_time)
         .add_systems(Update, spawn_enemies_over_time)
+        .add_systems(Update, exit_game)
         .run();
 }
 
@@ -197,15 +203,22 @@ pub fn spawn_stars(mut commands: Commands, asset_server: Res<AssetServer>, windo
         } 
 }
 
-pub fn enemy_hit_player(commands: Commands, mut player_query: Query<(Entity, &Transform), With<Player>>, enemy_query: Query< &Transform, With<Enemy>>,asset_server: Res<AssetServer>) {
+pub fn enemy_hit_player(
+    mut commands: Commands, 
+    mut player_query: Query<(Entity, &Transform), With<Player>>, 
+    enemy_query: Query< &Transform, With<Enemy>>,
+    asset_server: Res<AssetServer>, 
+    mut game_over_event_writer: EventWriter<GameOver>, 
+    score: Res<Score>, 
+) {
     let impact_distance = (PLAYER_SIZE+ENEMY_SIZE)/2.;
     //add the audio later 
     if let Ok(( player_entity, player_transform)) = player_query.get_single_mut() {
         for enemy_transform in enemy_query.iter() {
             let distance = player_transform.translation.distance(enemy_transform.translation);
             if distance <impact_distance {
-                // commands.entity(player_entity).despawn();
-                println!("Enemy hit player ! Game Over !")
+                commands.entity(player_entity).despawn();
+                game_over_event_writer.send(GameOver {score : score.value});
             }
         }
     }
@@ -286,6 +299,13 @@ pub fn spawn_enemies_over_time(mut commands: Commands, window_query: Query<&Wind
                 Transform::from_xyz(random_x, random_y, 0.)));   
             
         } 
+}
+
+pub fn exit_game (keyboard_input: Res<ButtonInput<KeyCode>>, mut app_exit_event_writer: EventWriter<AppExit>,  game_over_event: EventReader<GameOver>) {
+    if keyboard_input.pressed(KeyCode::Escape)  {app_exit_event_writer.send(AppExit::Success);}
+    if game_over_event.len() != 0 {app_exit_event_writer.send(AppExit::Success);}
+
+
 }
 // pub fn init_audio_effects (mut commands, asset_server: Res<AssetServer>)
 // {
