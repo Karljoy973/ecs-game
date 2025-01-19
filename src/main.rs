@@ -22,7 +22,6 @@ pub struct Enemy {
 pub struct Star {}
 
 #[derive( Resource)]
-#[derive(Default)]
 pub struct Score {
     pub value: u32
 }
@@ -32,6 +31,10 @@ pub struct StarSpawnTimer {
     pub timer: Timer
 }
 
+#[derive(Event)]
+pub struct GameOver {
+    pub score : u32
+}
 impl Default for StarSpawnTimer {
     fn default() -> StarSpawnTimer {
         StarSpawnTimer { timer : Timer::from_seconds(STAR_SPAWN_TIME, TimerMode::Repeating)}
@@ -48,10 +51,22 @@ impl Default for EnemySpawnTimer {
         EnemySpawnTimer { timer : Timer::from_seconds(ENEMY_SPAWN_TIME, TimerMode::Repeating)}
     }
 }
+impl Default for Score {
+    fn default() -> Score {
+        Score { value : 0}
+    }
+}
 
-#[derive(Event)]
-pub struct GameOver {
-    pub score : u32
+
+#[derive(Resource)]
+pub struct HighScore {
+    pub scores: Vec<(String, u32)>
+}
+
+impl Default for HighScore {
+    fn default() -> HighScore {
+        HighScore { scores : Vec::new()}
+    }
 }
 
 fn main() {
@@ -60,6 +75,7 @@ fn main() {
         .init_resource::<Score>()
         .init_resource::<StarSpawnTimer>()
         .init_resource::<EnemySpawnTimer>()
+        .init_resource::<HighScore>()
         .add_event::<GameOver>()
         .add_systems(Startup, spawn_camera)
         .add_systems(Startup, spawn_enemies)
@@ -76,7 +92,9 @@ fn main() {
         .add_systems(Update, tick_enemies_spawn_timer)
         .add_systems(Update, spawn_stars_over_time)
         .add_systems(Update, spawn_enemies_over_time)
+        .add_systems(Update, update_high_score)
         .add_systems(Update, exit_game)
+        .add_systems(Last, read_high_score)
         .run();
 }
 
@@ -207,7 +225,6 @@ pub fn enemy_hit_player(
     mut commands: Commands, 
     mut player_query: Query<(Entity, &Transform), With<Player>>, 
     enemy_query: Query< &Transform, With<Enemy>>,
-    asset_server: Res<AssetServer>, 
     mut game_over_event_writer: EventWriter<GameOver>, 
     score: Res<Score>, 
 ) {
@@ -230,7 +247,6 @@ pub fn player_catch_star (mut commands: Commands,
     With<Player>>, 
     star_query: Query<(Entity, &Transform), 
     With<Star>>,
-    asset_server: Res<AssetServer>,
     mut score : ResMut<Score>
 ) {
     let impact_distance = (STAR_SIZE+PLAYER_SIZE)/2.;
@@ -303,9 +319,21 @@ pub fn spawn_enemies_over_time(mut commands: Commands, window_query: Query<&Wind
 
 pub fn exit_game (keyboard_input: Res<ButtonInput<KeyCode>>, mut app_exit_event_writer: EventWriter<AppExit>,  game_over_event: EventReader<GameOver>) {
     if keyboard_input.pressed(KeyCode::Escape)  {app_exit_event_writer.send(AppExit::Success);}
-    if game_over_event.len() != 0 {app_exit_event_writer.send(AppExit::Success);}
+    if !game_over_event.is_empty() {app_exit_event_writer.send(AppExit::Success);}
+}
 
+pub fn update_high_score ( mut game_over_event:EventReader<GameOver> , mut high_score: ResMut<HighScore>) {
+    for event in  game_over_event.read().into_iter() {
+        high_score.scores.push(("Player".to_string(), event.score));
+    }
+}
 
+pub fn read_high_score (high_score: Res<HighScore>, mut game_over_event:EventReader<GameOver> ) {
+for _ in  game_over_event.read().into_iter() {
+    high_score.scores.last().inspect(|x|println!("High Scores : {}", x.1))
+    
+    ;
+    }
 }
 // pub fn init_audio_effects (mut commands, asset_server: Res<AssetServer>)
 // {
