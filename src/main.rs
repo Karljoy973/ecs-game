@@ -8,6 +8,7 @@ pub const ENEMY_SPEED: f32 = 480.;
 pub const NUMBER_OF_STARS: usize = 10; 
 pub const STAR_SIZE: f32 = 30.;
 pub const STAR_SPAWN_TIME : f32 = 1.; 
+pub const ENEMY_SPAWN_TIME: f32 = 3.;
 
 #[derive(Component)]
 pub struct Player {}
@@ -21,6 +22,7 @@ pub struct Enemy {
 pub struct Star {}
 
 #[derive( Resource)]
+#[derive(Default)]
 pub struct Score {
     pub value: u32
 }
@@ -36,9 +38,14 @@ impl Default for StarSpawnTimer {
     }
 }
 
-impl Default for Score {
-    fn default() -> Self {
-        Score { value : 0}
+#[derive(Resource)]
+pub struct EnemySpawnTimer {
+    pub timer: Timer
+}
+
+impl Default for EnemySpawnTimer {
+    fn default() -> EnemySpawnTimer {
+        EnemySpawnTimer { timer : Timer::from_seconds(ENEMY_SPAWN_TIME, TimerMode::Repeating)}
     }
 }
 
@@ -48,6 +55,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .init_resource::<Score>()
         .init_resource::<StarSpawnTimer>()
+        .init_resource::<EnemySpawnTimer>()
         .add_systems(Startup, spawn_camera)
         .add_systems(Startup, spawn_enemies)
         .add_systems(Startup, spawn_player)
@@ -60,7 +68,9 @@ fn main() {
         .add_systems(Update, player_catch_star)
         .add_systems(Update, update_score)
         .add_systems(Update, tick_star_spawn_timer)
-        .add_systems(Update, tick_star_spawn_timer)
+        .add_systems(Update, tick_enemies_spawn_timer)
+        .add_systems(Update, spawn_stars_over_time)
+        .add_systems(Update, spawn_enemies_over_time)
         .run();
 }
 
@@ -225,7 +235,7 @@ pub fn player_catch_star (mut commands: Commands,
 
 pub fn update_score (score: Res<Score>) {
     if score.is_changed() {
-        println!("Score : {}", score.value.to_string());
+        println!("Score : {}", score.value);
     }
 }
 
@@ -251,6 +261,31 @@ pub fn spawn_stars_over_time (
             
         } 
     
+}
+
+pub fn tick_enemies_spawn_timer (mut enemy_spawn_timer: ResMut<EnemySpawnTimer>, time: Res<Time>)
+{
+    enemy_spawn_timer.timer.tick(time.delta());
+}
+
+pub fn spawn_enemies_over_time(mut commands: Commands, window_query: Query<&Window, With<PrimaryWindow>>, asset_server: Res<AssetServer>, enemy_spawn_timer: Res<EnemySpawnTimer>) {
+     let window = match window_query.get_single() {
+            Ok(v) => v,
+            Err(_) => panic!("No Window found")
+        };
+    if enemy_spawn_timer.timer.finished() {
+
+            let random_x: f32 = random::<f32>() * window.width()/2.;
+            let random_y: f32 = random::<f32>() * window.height()/2.;
+
+            commands.spawn( 
+                (Sprite::from_image( asset_server.load("sprites/ball_red_large.png")), 
+                Enemy {
+                    direction: Vec2::new(random::<f32>(),random::<f32>()).normalize()
+                }, 
+                Transform::from_xyz(random_x, random_y, 0.)));   
+            
+        } 
 }
 // pub fn init_audio_effects (mut commands, asset_server: Res<AssetServer>)
 // {
