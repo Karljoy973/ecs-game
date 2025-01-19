@@ -1,6 +1,6 @@
 use bevy::app::{App, Last, Plugin, Update};
 use component::{HighScore, Score};
-use crate::score::system::{read_high_score, update_high_score, update_score};
+use crate::game::score::system::{read_high_score, update_high_score, update_score};
 
 pub mod component; 
 pub mod system;

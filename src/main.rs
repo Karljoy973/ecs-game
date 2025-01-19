@@ -1,21 +1,16 @@
 use bevy::prelude::*;
-use enemy::EnemyPlugin;
-use events::GameOverPlugin;
-use player::PlayerPlugin;
-use score::ScorePlugin;
-use setup::SetupPlugin;
-use star::StarPlugin;
-
+use game::{enemy::EnemyPlugin, player::PlayerPlugin, score::ScorePlugin, setup::SetupPlugin, star::StarPlugin};
 mod events;
-mod enemy;
-mod player; 
-mod score;
-mod star;
-mod setup;
+use events::{GameOverPlugin, UpdateState};
+
+
+mod game;
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        .add_state_scoped_event::<UpdateState>(GameState::MainMenu)
+        .add_state_scoped_event::<UpdateState>(SimulationState::Paused)
         .add_plugins(GameOverPlugin)
         .add_plugins(PlayerPlugin)
         .add_plugins(StarPlugin)
@@ -25,4 +20,22 @@ fn main() {
         .run();
 }
 
+#[derive(Eq)]
+#[derive(PartialEq)]
+#[derive(States,Event ,Debug, Clone, Copy, Hash, Default)]
+pub enum GameState {
+    #[default]
+    MainMenu, 
+    Game, 
+    GameOver
+}
 
+
+#[derive(Eq)]
+#[derive(PartialEq)]
+#[derive(States,Event, Debug, Clone, Copy, Hash, Default)]
+pub enum SimulationState {
+    Running, 
+    #[default]
+    Paused
+}

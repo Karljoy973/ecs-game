@@ -10,7 +10,7 @@ pub const ENEMY_SIZE: f32 = 64.;
 pub const ENEMY_SPEED: f32 = 480.;
 pub const ENEMY_SPAWN_TIME: f32 = 3.;
 
-use crate::enemy::system::{enemy_hit_player, spawn_enemies_over_time,tick_enemies_spawn_timer,spawn_enemies, update_enemy_direction, enemy_movement};
+use crate::game::enemy::system::{enemy_hit_player, spawn_enemies_over_time,tick_enemies_spawn_timer,spawn_enemies, update_enemy_direction, enemy_movement};
 pub struct  EnemyPlugin; 
 
 impl Plugin for EnemyPlugin {

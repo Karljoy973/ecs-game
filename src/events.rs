@@ -11,3 +11,5 @@ impl Plugin for GameOverPlugin {
         app.add_event::<GameOver>();
     }
 }
+#[derive(Event)]
+pub struct UpdateState ;

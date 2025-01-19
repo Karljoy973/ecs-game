@@ -6,7 +6,7 @@ use bevy::{app::{App, Plugin, Startup, Update}, prelude::IntoSystemConfigs};
 pub const PLAYER_SIZE: f32 = 64.;
 pub const PLAYER_SPEED: f32 = 500.;
 
-use crate::player::system::{confine_player_mouvement, spawn_player, player_mouvement, player_catch_star};
+use crate::game::player::system::{confine_player_mouvement, spawn_player, player_mouvement, player_catch_star};
 pub struct  PlayerPlugin; 
 
 impl Plugin for PlayerPlugin {

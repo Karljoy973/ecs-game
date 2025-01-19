@@ -4,10 +4,10 @@ use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use rand::random;
 use crate::events::GameOver;
-use crate::enemy::{component::Enemy, resources::EnemySpawnTimer};
-use crate::player::component::Player;
-use crate::player::PLAYER_SIZE;
-use crate::score::component::Score;
+use crate::game::enemy::{component::Enemy, resources::EnemySpawnTimer};
+use crate::game::player::component::Player;
+use crate::game::player::PLAYER_SIZE;
+use crate::game::score::component::Score;
 
 use super::{ENEMY_COUNT, ENEMY_SIZE, ENEMY_SPEED};
 

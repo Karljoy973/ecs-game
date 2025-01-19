@@ -1,6 +1,6 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 
-use crate::{score::component::Score, star::{component::Star, STAR_SIZE}};
+use crate::game::{score::component::Score, star::{component::Star, STAR_SIZE}};
 
 use super::{component::Player, PLAYER_SIZE, PLAYER_SPEED};
 
