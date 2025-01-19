@@ -1,4 +1,4 @@
-use bevy::{math::Vec2, prelude:: Resource}; 
+use bevy:: prelude:: Resource; 
 
 #[derive(Resource)]
 pub struct Score {

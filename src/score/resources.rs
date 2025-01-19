@@ -1,4 +1,3 @@
-use bevy::prelude::Resource;
 
 use super::component::{HighScore, Score};
 

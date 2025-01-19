@@ -1,4 +1,4 @@
-use bevy::{math::Vec2, prelude::Component}; 
+use bevy:: prelude::Component; 
 
 #[derive(Component)]
 pub struct Star {}
