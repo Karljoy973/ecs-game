@@ -4,7 +4,6 @@ use crate::game::score::system::{read_high_score, update_high_score, update_scor
 
 pub mod component; 
 pub mod system;
-mod resources;
 
 
 pub struct ScorePlugin; 

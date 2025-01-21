@@ -1,7 +1,9 @@
 use bevy::prelude::*;
-use game::{enemy::EnemyPlugin, player::PlayerPlugin, score::ScorePlugin, setup::SetupPlugin, star::StarPlugin};
+use game::{enemy::EnemyPlugin, player::PlayerPlugin, score::ScorePlugin,  star::StarPlugin};
+mod setup;
 mod events;
-use events::{GameOverPlugin, UpdateState};
+use events::GameOverPlugin;
+use setup::SetupPlugin;
 
 
 mod game;
@@ -9,8 +11,8 @@ mod game;
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_state_scoped_event::<UpdateState>(GameState::MainMenu)
-        .add_state_scoped_event::<UpdateState>(SimulationState::Paused)
+        .init_state::<SimulationState>()
+        .init_state::<GameState>()
         .add_plugins(GameOverPlugin)
         .add_plugins(PlayerPlugin)
         .add_plugins(StarPlugin)
@@ -22,7 +24,7 @@ fn main() {
 
 #[derive(Eq)]
 #[derive(PartialEq)]
-#[derive(States,Event ,Debug, Clone, Copy, Hash, Default)]
+#[derive(States ,Debug, Clone, Copy, Hash, Default)]
 pub enum GameState {
     #[default]
     MainMenu, 
@@ -33,7 +35,7 @@ pub enum GameState {
 
 #[derive(Eq)]
 #[derive(PartialEq)]
-#[derive(States,Event, Debug, Clone, Copy, Hash, Default)]
+#[derive(States, Debug, Clone, Copy, Hash, Default)]
 pub enum SimulationState {
     Running, 
     #[default]
