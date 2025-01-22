@@ -8,6 +8,7 @@ use crate::game::enemy::{component::Enemy, resources::EnemySpawnTimer};
 use crate::game::player::component::Player;
 use crate::game::player::PLAYER_SIZE;
 use crate::game::score::component::Score;
+use crate::GameState;
 
 use super::{ENEMY_COUNT, ENEMY_SIZE, ENEMY_SPEED};
 
@@ -64,17 +65,21 @@ pub fn enemy_hit_player(
     mut commands: Commands, 
     mut player_query: Query<(Entity, &Transform), With<Player>>, 
     enemy_query: Query< &Transform, With<Enemy>>,
-    mut game_over_event_writer: EventWriter<GameOver>, 
+    mut next_game_state: ResMut<NextState<GameState>>, 
     score: Res<Score>, 
 ) {
     let impact_distance = (PLAYER_SIZE+ENEMY_SIZE)/2.;
     //add the audio later 
+    let mut finalscore = score.into_inner().value;
+    
     if let Ok(( player_entity, player_transform)) = player_query.get_single_mut() {
         for enemy_transform in enemy_query.iter() {
             let distance = player_transform.translation.distance(enemy_transform.translation);
             if distance <impact_distance {
                 commands.entity(player_entity).despawn();
-                game_over_event_writer.send(GameOver {score : score.value});
+                println!("You scored : {}", finalscore);
+                next_game_state.set(GameState::GameOver);
+                // game_over_event_writer.send(GameOver {score : score.value});
             }
         }
     }
@@ -104,4 +109,17 @@ pub fn spawn_enemies_over_time(mut commands: Commands, window_query: Query<&Wind
 pub fn tick_enemies_spawn_timer (mut enemy_spawn_timer: ResMut<EnemySpawnTimer>, time: Res<Time>)
 {
     enemy_spawn_timer.timer.tick(time.delta());
+}
+
+pub fn despanw_enemies(
+    mut commands: Commands, 
+    mut enemies_query: Query<(Entity, &Transform), With<Enemy>>, 
+    enemy_query: Query< &Transform, With<Enemy>>,
+    game_state: Res<State<GameState>>
+) {
+    if game_state.get().eq(&GameState::GameOver) {
+        for (enemy, _) in enemies_query.iter() {
+            commands.entity(enemy).despawn();
+        } 
+    }
 }
