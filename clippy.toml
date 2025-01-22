@@ -1,0 +1,3 @@
+[clippy]
+max_width = 100
+wrap_comments = true

@@ -3,14 +3,20 @@
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use rand::random;
-use crate::events::GameOver;
-use crate::game::enemy::{component::Enemy, resources::EnemySpawnTimer};
+use crate::game::enemy::{
+    component::Enemy, 
+    resources::EnemySpawnTimer
+};
 use crate::game::player::component::Player;
 use crate::game::player::PLAYER_SIZE;
 use crate::game::score::component::Score;
 use crate::GameState;
 
-use super::{ENEMY_COUNT, ENEMY_SIZE, ENEMY_SPEED};
+use super::{
+    ENEMY_COUNT, 
+    ENEMY_SIZE, 
+    ENEMY_SPEED
+};
 
 
 
@@ -70,7 +76,7 @@ pub fn enemy_hit_player(
 ) {
     let impact_distance = (PLAYER_SIZE+ENEMY_SIZE)/2.;
     //add the audio later 
-    let mut finalscore = score.into_inner().value;
+    let finalscore = score.into_inner().value;
     
     if let Ok(( player_entity, player_transform)) = player_query.get_single_mut() {
         for enemy_transform in enemy_query.iter() {
@@ -79,7 +85,6 @@ pub fn enemy_hit_player(
                 commands.entity(player_entity).despawn();
                 println!("You scored : {}", finalscore);
                 next_game_state.set(GameState::GameOver);
-                // game_over_event_writer.send(GameOver {score : score.value});
             }
         }
     }
@@ -113,8 +118,7 @@ pub fn tick_enemies_spawn_timer (mut enemy_spawn_timer: ResMut<EnemySpawnTimer>,
 
 pub fn despanw_enemies(
     mut commands: Commands, 
-    mut enemies_query: Query<(Entity, &Transform), With<Enemy>>, 
-    enemy_query: Query< &Transform, With<Enemy>>,
+    enemies_query: Query<(Entity, &Transform), With<Enemy>>, 
     game_state: Res<State<GameState>>
 ) {
     if game_state.get().eq(&GameState::GameOver) {

@@ -1,6 +1,9 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 use rand::random;
 
+
+use crate::GameState;
+
 use super::{component::Star, resources::StarSpawnTimer, NUMBER_OF_STARS};
 
 
@@ -46,3 +49,14 @@ pub fn spawn_stars(mut commands: Commands, asset_server: Res<AssetServer>, windo
         } 
 }
 
+pub fn despawn_stars (
+      mut commands: Commands, 
+    stars_query: Query<(Entity, &Transform), With<Star>>, 
+    game_state: Res<State<GameState>>
+) {
+if game_state.get().eq(&GameState::GameOver) {
+        for (star, _) in stars_query.iter() {
+            commands.entity(star).despawn();
+        } 
+    }
+}
