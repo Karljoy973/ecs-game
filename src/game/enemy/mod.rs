@@ -1,4 +1,4 @@
-use bevy::{app::{App, Plugin, Startup, Update}, prelude::{in_state, IntoSystemConfigs, OnEnter, OnExit}};
+use bevy::{app::{App, Plugin, Startup, Update}, prelude::{in_state, IntoSystemConfigs, OnEnter}};
 use resources::EnemySpawnTimer;
 
 pub mod component; 

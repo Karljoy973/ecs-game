@@ -2,11 +2,31 @@ pub mod component;
 pub mod system;
 pub mod resources;
 
-use bevy::{app::{App, Plugin, Startup, Update}, prelude::{in_state, IntoSystemConfigs}};
+use bevy::{
+    app::{
+        App, 
+        Plugin, 
+        Startup, 
+        Update
+    }, 
+    prelude::{
+        in_state, 
+        IntoSystemConfigs
+    }
+};
+use crate::{
+        game::player::system::{
+        confine_player_mouvement, 
+        player_catch_star, 
+        player_mouvement, 
+        spawn_player
+    }, 
+    GameState
+};
+
 pub const PLAYER_SIZE: f32 = 64.;
 pub const PLAYER_SPEED: f32 = 500.;
 
-use crate::{game::player::system::{confine_player_mouvement, player_catch_star, player_mouvement, spawn_player}, GameState};
 pub struct  PlayerPlugin; 
 
 impl Plugin for PlayerPlugin {
